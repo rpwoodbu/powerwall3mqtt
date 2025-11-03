@@ -12,3 +12,21 @@ pip.parse(
     requirements_lock = "//:requirements_lock.txt",
 )
 use_repo(pip, "pip")
+
+bazel_dep(name = "rules_oci", version = "2.2.6")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "py3_image_base",
+    digest = "sha256:6093fe0037ef99ca292383b7b78258fa0f823e74927b2fb0a0e87a6a8a917a7d",  # tag: 2.4-22.04_beta
+    image = "gcr.io/distroless/python3",
+    platforms = [
+        "linux/amd64",
+        "linux/arm64",
+    ],
+)
+use_repo(oci, "py3_image_base", "py3_image_base_linux_amd64", "py3_image_base_linux_arm64")
+
+bazel_dep(name = "rules_pkg", version = "1.1.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.21.2")
+bazel_dep(name = "platforms", version = "1.0.0")

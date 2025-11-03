@@ -1,4 +1,7 @@
+load("@aspect_bazel_lib//lib:expand_template.bzl", "expand_template")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_push")
 load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
 py_binary(
     name = "powerwall3mqtt",
@@ -13,4 +16,48 @@ py_binary(
     ],
     data = ["logger.yaml"],
     imports = ["."],
+)
+
+oci_push(
+    name = "powerwall3mqtt-push",
+    image = ":powerwall3mqtt-image-index",
+    repository = "ghcr.io/rpwoodbu/powerwall3mqtt",
+    remote_tags = ":powerwall3mqtt-image-tags",
+)
+
+expand_template(
+    name = "powerwall3mqtt-image-tags",
+    template = ["SHA"],
+    stamp_substitutions = {"SHA": "{{STABLE_GIT_SHORT_SHA}}"},
+)
+
+oci_image(
+    name = "powerwall3mqtt-image",
+    base = "@py3_image_base",
+    tars = [":powerwall3mqtt-tar"],
+    entrypoint = [
+        "/usr/bin/python3",
+        "/app/powerwall3mqtt.zip",
+    ],
+)
+
+oci_image_index(
+    name = "powerwall3mqtt-image-index",
+    images = [":powerwall3mqtt-image"],
+    platforms = [
+        "//:linux_amd64",
+        "//:linux_arm64",
+    ],
+)
+
+filegroup(
+    name = "powerwall3mqtt-zip",
+    srcs = [":powerwall3mqtt"],
+    output_group = "python_zip_file",
+)
+
+pkg_tar(
+    name = "powerwall3mqtt-tar",
+    package_dir = "/app",
+    srcs = [":powerwall3mqtt-zip"],
 )

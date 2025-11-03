@@ -1,0 +1,2 @@
+build --stamp
+build --workspace_status_command="echo STABLE_GIT_SHORT_SHA $(if git diff --quiet; then git rev-parse HEAD | head -c 7; else echo UNCLEAN; fi)"
