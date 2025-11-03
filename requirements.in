@@ -1,0 +1,5 @@
+cachetools
+paho-mqtt
+protobuf
+pyaml
+requests

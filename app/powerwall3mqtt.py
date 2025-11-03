@@ -37,8 +37,14 @@ hamqtt.devices.origin['name'] = 'powerwall3mqtt'
 #hamqtt.devices.origin['sw'] = '0.0.0'
 #hamqtt.devices.origin['url'] = ''
 
-
-with open("logger.yaml", 'r', encoding="utf-8") as stream:
+logger_filename = "logger.yaml"
+try:
+    from python.runfiles import Runfiles
+    r = Runfiles.Create()
+    logger_filename = r.Rlocation(f"_main/app/{logger_filename}")
+except ModuleNotFoundError as e:
+    pass
+with open(logger_filename, 'r', encoding="utf-8") as stream:
     try:
         logging.config.dictConfig(yaml.safe_load(stream))
     except yaml.YAMLError as exc:

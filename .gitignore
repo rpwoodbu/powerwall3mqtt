@@ -2,3 +2,4 @@
 .envrc
 .pyenv
 localdata
+/bazel-*

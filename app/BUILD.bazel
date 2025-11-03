@@ -1,0 +1,16 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "powerwall3mqtt",
+    srcs = glob(["**/*.py"]),
+    deps = [
+        "@pip//cachetools",
+        "@pip//paho_mqtt",
+        "@pip//protobuf",
+        "@pip//pyaml",
+        "@pip//requests",
+        "@rules_python//python/runfiles",
+    ],
+    data = ["logger.yaml"],
+    imports = ["."],
+)
