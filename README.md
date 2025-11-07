@@ -11,33 +11,7 @@ builds `powerwall3mqtt` with Bazel, which has reproducible builds, and is able
 to build a multi-architecture OCI image (amd64 and arm64). Note that Bazel
 does _not_ use the `Dockerfile`.
 
-## Building the image
-The build uses Bazel. This is simple to do and does not require installing
-anything to your computer other than Bazelisk, the Bazel wrapper. Bazelisk is a
-single static binary which will download and execute the correct version of
-Bazel for you. It installs Bazel in `~/.cache/bazelisk` and does not require
-root privilege. Simply download the binary from
-[here](https://github.com/bazelbuild/bazelisk/releases), name it `bazel`, and
-put it somewhere in your `PATH` (e.g. `/usr/local/bin`).
-
-You can build the multi-arch image like so:
-
-```sh
-bazel build //app:powerwall3mqtt-image-index
-```
-
-It will place the image in `bazel-bin/app/powerwall3mqtt-image`; from there you
-can use your local tooling (e.g. Docker or Podman) to load and run the image.
-
-If you just want to push the image to a container image repository, you can do
-something simpler. Edit `app/BUILD.bazel`, find the line which says
-`repository`, and edit it for your repo. Then do this:
-
-```sh
-bazel run //app:powerwall3mqtt-push
-```
-
-## Running the program
+## Running the image
 You will need to set some environment variables so that `powerwall3mqtt` knows
 how to authenticate to your Powerwall 3 and how to talk to your MQTT broker.
 
@@ -50,11 +24,42 @@ POWERWALL3MQTT_CONFIG_MQTT_HOST="hostname.or.ip.address.of.mqtt.broker"
 There are more options if you need them. See `config.yaml` for all the settings,
 and tweak their names to follow the pattern above.
 
+See the `deploy` directory for example configs.
+
+## Development
+The build uses Bazel. This is simple to do and does not require installing
+anything to your computer other than Bazelisk, the Bazel wrapper. Bazelisk is a
+single static binary which will download and execute the correct version of
+Bazel for you. It installs Bazel in `~/.cache/bazelisk` so does not require root
+privilege. Simply download the binary from
+[here](https://github.com/bazelbuild/bazelisk/releases), name it `bazel`, and
+put it somewhere in your `PATH` (e.g. `/usr/local/bin`).
+
+### Running the program locally
 For development, you can easily run the binary locally without using a container
 image (but it will still use the correct version of all dependencies):
 
 ```sh
 bazel run //app:powerwall3mqtt
+```
+
+### Building the image
+You can build the multi-arch image like so:
+
+```sh
+bazel build //app:powerwall3mqtt-image-index
+```
+
+It will place the image in `bazel-bin/app/powerwall3mqtt-image-index`; from
+there you can use your local tooling (e.g. Docker or Podman) to load and run the
+image.
+
+If you just want to push the image to a container image repository, you can do
+something simpler. Edit `app/BUILD.bazel`, find the line which says
+`repository`, and edit it for your repo. Then do this:
+
+```sh
+bazel run //app:powerwall3mqtt-push
 ```
 
 ## Current state

@@ -1,0 +1,45 @@
+# Kubernetes manifest for powerwall3mqtt
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: powerwall3mqtt
+spec:
+  selector:
+    matchLabels:
+      app: powerwall3mqtt
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: powerwall3mqtt
+    spec:
+      # If you have a specific node which has the WiFi connection to the
+      # Powerwall3, specify it here to ensure the pod schedules on that node.
+      #nodeName: special-nodename
+      containers:
+      - name: powerwall3mqtt
+        # Replace the following with the latest released tag.
+        image: ghcr.io/rpwoodbu/powerwall3mqtt:12be541@sha256:2119b556bfad184302b9a130268f3a981944da0c9e725cc5cf8378c7e9a8df81
+        env:
+        - name: POWERWALL3MQTT_CONFIG_MQTT_HOST
+          # Replace with your MQTT hostname, IP address, or service name.
+          value: mosquitto
+        - name: POWERWALL3MQTT_CONFIG_TEDAPI_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              # Create a secret with the Powerwall3 password.
+              name: powerwall3
+              key: password
+        - name: POWERWALL3MQTT_CONFIG_TEDAPI_POLL_INTERVAL
+          # Set this to the number of seconds you want between polls. Less than
+          # 5 seconds may be too aggressive.
+          value: "5"
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "50m"
+          limits:
+            memory: "300Mi"
+            # This boost helps it get off the ground, but it uses very little
+            # CPU in the steady state.
+            cpu: "500m"
